@@ -1,0 +1,80 @@
+digraph ER_Diagram {
+	rankdir=LR
+	USER [label="{USER|
+user_id (PK)
+email
+password_hash
+role
+status
+created_at}" shape=record]
+	CATEGORY [label="{CATEGORY|
+category_id (PK)
+category_name
+created_at}" shape=record]
+	TOPIC [label="{TOPIC|
+topic_id (PK)
+topic_name
+category_id (FK)
+created_at}" shape=record]
+	SEARCH [label="{SEARCH_LOG|
+search_id (PK)
+query_text
+created_at
+user_id (FK)
+topic_id (FK)}" shape=record]
+	SOURCE [label="{SOURCE|
+source_id (PK)
+source_name}" shape=record]
+	CONTENT [label="{CONTENT_RESULT|
+content_id (PK)
+title
+url
+snippet
+created_at
+search_id (FK)
+source_id (FK)}" shape=record]
+	BOOKMARK [label="{BOOKMARKS|
+bookmark_id (PK)
+user_id (FK)
+content_id (FK)
+created_at}" shape=record]
+	FEEDBACK [label="{FEEDBACK|
+feedback_id (PK)
+rating
+comment
+created_at
+user_id (FK)
+content_id (FK)}" shape=record]
+	FLAG [label="{FLAGGED_CONTENT|
+flag_id (PK)
+reason
+status
+created_at
+user_id (FK)
+content_id (FK)}" shape=record]
+	SESSION [label="{USER_SESSION|
+session_id (PK)
+last_login
+user_id (FK)
+last_search_id (FK)}" shape=record]
+	RECOMMEND [label="{RECOMMENDATION_LOG|
+rec_id (PK)
+reason
+shown_at
+user_id (FK)
+content_id (FK)}" shape=record]
+	USER -> SEARCH [label="1:M"]
+	CATEGORY -> TOPIC [label="1:M"]
+	TOPIC -> SEARCH [label="1:M"]
+	SEARCH -> CONTENT [label="1:M"]
+	SOURCE -> CONTENT [label="1:M"]
+	USER -> BOOKMARK [label="1:M"]
+	CONTENT -> BOOKMARK [label="1:M"]
+	USER -> FEEDBACK [label="1:M"]
+	CONTENT -> FEEDBACK [label="1:M"]
+	USER -> FLAG [label="1:M"]
+	CONTENT -> FLAG [label="1:M"]
+	USER -> SESSION [label="1:1"]
+	USER -> RECOMMEND [label="1:M"]
+	CONTENT -> RECOMMEND [label="1:M"]
+}
