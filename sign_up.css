@@ -1,0 +1,89 @@
+body{
+    padding: 0;
+    margin: 0;
+    background-color: #dde0eb;
+}
+.outer{
+    height: 100vh;
+    width: 100vw;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.inner{
+    height: 80vh;
+    width: 30vw;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    background-color: white;
+    border: 1px solid rgb(169, 169, 169);
+    border-radius: 7px;
+}
+.texts{
+    align-items: left;
+    justify-content: left;
+    width: 23vw;
+}
+.text1{
+    /* font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; */
+    font-family: "Netflix Sans", "Helvetica Neue", "Segoe UI";
+    font-size: 2vw;
+    font-weight: 780;
+    padding: 5px;
+}
+.text2{
+    font-family: "Netflix Sans", "Helvetica Neue", "Segoe UI";
+    font-size: 1vw;
+    padding: 5px;
+    color: rgb(97, 96, 96);
+}
+.inputs{
+    display: flex;
+    flex-direction: column;
+    width: 24vw;
+}
+.email{
+    padding: 3.5%;
+    margin: 3%;
+    margin-top: 15%;
+    color: rgb(160, 157, 157);
+    font-family: "Netflix Sans", "Helvetica Neue", "Segoe UI";
+    font-size: 1vw;
+}
+.password{
+    padding: 3.5%;
+    margin: 3%;
+    margin-bottom: 15%;
+    color: rgb(160, 157, 157);
+    font-family: "Netflix Sans", "Helvetica Neue", "Segoe UI";
+    font-size: 1vw; 
+}
+.signup{
+    width: 24vw;
+    padding: 3.5%; 
+    /* background-color: #6549f3; */
+    /* background: linear-gradient(225deg, #6549f3, #7fd4ff); */
+    background: linear-gradient(225deg, #6549f3, #4fc3ff);
+    border: transparent;
+    border-radius: 8px;
+    color: white;  
+    margin: 10px;
+    font-family: "Netflix Sans", "Helvetica Neue", "Segoe UI";    
+}
+.username{
+    padding: 3.5%;
+    margin: 3%;
+    /* margin-bottom: 15%; */
+    color: rgb(160, 157, 157);
+    font-family: "Netflix Sans", "Helvetica Neue", "Segoe UI";
+    font-size: 1vw; 
+}
+.signup:hover{
+    background-color: #573fcf;
+}
+.text3{
+    font-size: 1vw;
+    font-family: "Netflix Sans", "Helvetica Neue", "Segoe UI";
+}
