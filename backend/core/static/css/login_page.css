@@ -72,7 +72,8 @@ body{
     font-family: "Netflix Sans", "Helvetica Neue", "Segoe UI";    
 }
 .signin:hover{
-    background-color: #573fcf;
+    /* background-color: #573fcf; */
+    cursor: pointer;
 }
 .text3{
     font-size: 1vw;

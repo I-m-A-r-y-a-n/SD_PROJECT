@@ -1,0 +1,104 @@
+
+
+    {% load static %}
+
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>MyAI</title>
+
+    <link rel="stylesheet" href="{% static 'css/home_page.css' %}">
+    <script src="{% static 'js/home_page.js' %}" defer></script>
+
+    </head>
+
+    <body>
+
+        <!-- {% csrf_token %} -->
+
+    <div class="container">
+
+        <!-- HEADER -->
+
+        <div class="header">
+
+            <div class="logo">MyAI</div>
+
+            <div class="username">{{ username }}</div>
+
+        </div>
+
+        <!-- MENU BUTTON (outside header now) -->
+
+        <button class="menu-btn" id="menuBtn">
+            ☰
+        </button>
+
+
+        <!-- SIDEBAR -->
+
+        <div class="sidebar" id="sidebar">
+
+            <div class="sidebar-item1"></div>
+            <div class="sidebar-item">History</div>
+            <div class="sidebar-item">Profile</div>
+            <div class="sidebar-item">Themes</div>
+            <div class="sidebar-item">Settings</div>
+            <div class="sidebar-item logout">Logout</div>
+
+        </div>
+
+        <div class="overlay" id="overlay"></div>
+
+
+        <!-- MAIN -->
+
+        <div class="main">
+
+            <div class="welcome">
+                Hello <span>{{ username }}</span>
+            </div>
+
+            <div class="subtitle">
+                What can I help you with today?
+            </div>
+
+
+            <!-- SEARCH -->
+
+            <div class="search-box">
+
+            <input type="text" placeholder="Ask anything..." class="search-input" id="searchInput">
+
+                <button class="ask-btn" id="askBtn">
+                    Ask
+                </button>
+
+            </div>
+
+            <div class="results" id="results"></div>
+
+
+            <!-- SUGGESTIONS -->
+
+            <div class="suggestions">
+
+                <div class="chip">Python tutorial</div>
+                <div class="chip">SQL queries</div>
+                <div class="chip">DSA problems</div>
+                <div class="chip">React interview</div>
+                <div class="chip">System design</div>
+                <div class="chip">AI tools</div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    </body>
+    </html>
+
