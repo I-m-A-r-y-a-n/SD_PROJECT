@@ -8,4 +8,4 @@ cmds = ["cd backend && pip install -r requirements.txt --break-system-packages"]
 cmds = ["cd backend && python manage.py collectstatic --noinput"]
 
 [start]
-cmd = "cd backend && gunicorn backend.wsgi --log-file -"
+cmd = "cd backend && python -m gunicorn backend.wsgi --log-file -"
