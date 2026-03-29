@@ -5,10 +5,7 @@ nixPkgs = ["python310", "python310Packages.pip"]
 cmds = ["cd backend && pip install -r requirements.txt --break-system-packages"]
 
 [phases.build]
-cmds = [
-    "cd backend && python manage.py collectstatic --noinput",
-    "cd backend && python manage.py migrate"
-]
+cmds = ["cd backend && python manage.py collectstatic --noinput"]
 
 [start]
-cmd = "cd backend && python -m gunicorn backend.wsgi --log-file -"
+cmd = "cd backend && python manage.py migrate && python -m gunicorn backend.wsgi --log-file -"
