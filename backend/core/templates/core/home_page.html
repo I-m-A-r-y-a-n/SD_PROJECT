@@ -1,104 +1,96 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MyAI</title>
+<link rel="stylesheet" href="{% static 'css/home_page.css' %}">
+<script src="{% static 'js/home_page.js' %}" defer></script>
+</head>
+<body>
 
+<div class="app" id="app">
 
-    {% load static %}
+    <!-- SIDEBAR -->
+    <div class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <div class="sidebar-logo">MyAI</div>
+            <button class="sidebar-close" id="sidebarClose">✕</button>
+        </div>
 
-    <!DOCTYPE html>
-    <html lang="en">
-    <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <div class="new-chat-btn" id="newChatBtn">
+            <span>✏️</span> New Chat
+        </div>
 
-    <title>MyAI</title>
+        <div class="sidebar-section-label">Menu</div>
+        <div class="sidebar-item" data-action="profile">
+            <span class="sidebar-icon">👤</span> Profile
+        </div>
+        <div class="sidebar-item" data-action="themes">
+            <span class="sidebar-icon">🎨</span> Themes
+        </div>
+        <div class="sidebar-item" data-action="settings">
+            <span class="sidebar-icon">⚙️</span> Settings
+        </div>
 
-    <link rel="stylesheet" href="{% static 'css/home_page.css' %}">
-    <script src="{% static 'js/home_page.js' %}" defer></script>
+        <div class="sidebar-section-label">Recent</div>
+        <div class="history-list" id="historyList">
+            <div class="history-loading">Loading...</div>
+        </div>
 
-    </head>
+        <div class="sidebar-item logout" data-action="logout">
+            <span class="sidebar-icon">🚪</span> Logout
+        </div>
+    </div>
 
-    <body>
+    <div class="overlay" id="overlay"></div>
 
-        <!-- {% csrf_token %} -->
-
-    <div class="container">
+    <!-- MAIN CONTENT -->
+    <div class="main-content" id="mainContent">
 
         <!-- HEADER -->
-
-        <div class="header">
-
-            <div class="logo">MyAI</div>
-
-            <div class="username">{{ username }}</div>
-
+        <div class="header" id="header">
+            <div class="header-left">
+                <button class="menu-btn" id="menuBtn">☰</button>
+                <div class="logo">MyAI</div>
+            </div>
+            <div class="username-pill">👤 {{ username }}</div>
         </div>
 
-        <!-- MENU BUTTON (outside header now) -->
+        <!-- RESULTS AREA -->
+        <div class="results-area" id="resultsArea"></div>
 
-        <button class="menu-btn" id="menuBtn">
-            ☰
-        </button>
+        <!-- SEARCH WRAPPER — hero lives inside here now -->
+        <div class="search-wrapper" id="searchWrapper">
 
-
-        <!-- SIDEBAR -->
-
-        <div class="sidebar" id="sidebar">
-
-            <div class="sidebar-item1"></div>
-            <div class="sidebar-item">History</div>
-            <div class="sidebar-item">Profile</div>
-            <div class="sidebar-item">Themes</div>
-            <div class="sidebar-item">Settings</div>
-            <div class="sidebar-item logout">Logout</div>
-
-        </div>
-
-        <div class="overlay" id="overlay"></div>
-
-
-        <!-- MAIN -->
-
-        <div class="main">
-
-            <div class="welcome">
-                Hello <span>{{ username }}</span>
+            <!-- HERO inside search wrapper -->
+            <div class="hero" id="hero">
+                <div class="hero-greeting">Hello, <span>{{ username }}</span> 👋</div>
+                <div class="hero-subtitle">Ask anything. Get answers from AI, YouTube & the web.</div>
             </div>
 
-            <div class="subtitle">
-                What can I help you with today?
-            </div>
-
-
-            <!-- SEARCH -->
-
-            <div class="search-box">
-
-            <input type="text" placeholder="Ask anything..." class="search-input" id="searchInput">
-
+            <div class="search-box" id="searchBox">
+                <input type="text" placeholder="Ask anything..." class="search-input" id="searchInput">
                 <button class="ask-btn" id="askBtn">
-                    Ask
+                    <span class="btn-text">Ask</span>
+                    <span class="btn-loader" id="btnLoader"></span>
                 </button>
-
             </div>
 
-            <div class="results" id="results"></div>
-
-
-            <!-- SUGGESTIONS -->
-
-            <div class="suggestions">
-
+            <div class="suggestions" id="suggestions">
                 <div class="chip">Python tutorial</div>
                 <div class="chip">SQL queries</div>
                 <div class="chip">DSA problems</div>
                 <div class="chip">React interview</div>
                 <div class="chip">System design</div>
                 <div class="chip">AI tools</div>
-
             </div>
 
         </div>
 
     </div>
+</div>
 
-    </body>
-    </html>
-
+</body>
+</html>
