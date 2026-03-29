@@ -75,16 +75,11 @@ WSGI_APPLICATION = 'backend.wsgi.application'
 # }
 
 import dj_database_url
-
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': os.environ.get('DB_NAME', 'smartsearchdb'),
-        'USER': os.environ.get('DB_USER', 'postgres'),
-        'PASSWORD': os.environ.get('DB_PASSWORD', 'Zxcvbnm@890'),
-        'HOST': os.environ.get('DB_HOST', 'localhost'),
-        'PORT': os.environ.get('DB_PORT', '5432'),
-    }
+    'default': dj_database_url.config(
+        env='DATABASE_URL',
+        default='postgresql://postgres:Zxcvbnm@890@localhost:5432/smartsearchdb'
+    )
 }
 
 print("DB_HOST FROM ENV:", os.environ.get("DB_HOST"))
