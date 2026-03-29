@@ -3,7 +3,7 @@
     "builder": "NIXPACKS"
   },
   "deploy": {
-    "startCommand": "cd backend && python -m gunicorn backend.wsgi --log-file -",
+    "startCommand": "cd backend && python manage.py migrate && python -m gunicorn backend.wsgi --log-file -",
     "healthcheckPath": "/login/"
   }
 }
