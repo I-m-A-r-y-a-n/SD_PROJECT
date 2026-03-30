@@ -101,3 +101,5 @@ STATICFILES_DIRS = [BASE_DIR / "core" / "static"]
 
 STATIC_ROOT = BASE_DIR / "staticfiles"
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+
+CSRF_TRUSTED_ORIGINS = ['https://sdproject-production.up.railway.app']
