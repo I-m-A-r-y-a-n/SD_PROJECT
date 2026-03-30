@@ -265,7 +265,7 @@ def search_api(request):
             params={"part": "snippet", "q": query, "maxResults": 20, "type": "video", "key": settings.YOUTUBE_API_KEY}
         )
         yt_data = yt_response.json()
-        video_ids = [item["id"]["videoId"] for item in yt_data.get("items", [])]
+        video_ids = [item["id"]["videoId"] for item in yt_data.get("items", []) if item["id"].get("videoId")]
         details_response = requests.get(
             "https://www.googleapis.com/youtube/v3/videos",
             params={"part": "status,snippet", "id": ",".join(video_ids), "key": settings.YOUTUBE_API_KEY}
