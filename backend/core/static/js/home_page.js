@@ -192,7 +192,7 @@
             videoContainer.classList.add("video-container");
             data.videos.forEach(video => {
                 const iframe = document.createElement("iframe");
-                iframe.src = "https://www.youtube.com/embed/" + video.video_id + "?enablejsapi=1";
+                iframe.src = "https://www.youtube.com/embed/" + video.video_id + "?origin=https://sdproject-production.up.railway.app";
                 iframe.setAttribute("allow", "accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share");
                 iframe.setAttribute("allowfullscreen", "true");
                 iframe.setAttribute("frameborder", "0");
