@@ -190,13 +190,28 @@
 
             const videoContainer = document.createElement("div");
             videoContainer.classList.add("video-container");
+            // data.videos.forEach(video => {
+            //     const iframe = document.createElement("iframe");
+            //     iframe.src = "https://www.youtube.com/embed/" + video.video_id + "?origin=https://sdproject-production.up.railway.app";
+            //     iframe.setAttribute("allow", "accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share");
+            //     iframe.setAttribute("allowfullscreen", "true");
+            //     iframe.setAttribute("frameborder", "0");
+            //     videoContainer.appendChild(iframe);
+            // });
             data.videos.forEach(video => {
-                const iframe = document.createElement("iframe");
-                iframe.src = "https://www.youtube.com/embed/" + video.video_id + "?origin=https://sdproject-production.up.railway.app";
-                iframe.setAttribute("allow", "accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share");
-                iframe.setAttribute("allowfullscreen", "true");
-                iframe.setAttribute("frameborder", "0");
-                videoContainer.appendChild(iframe);
+                const videoCard = document.createElement("a");
+                videoCard.href = "https://www.youtube.com/watch?v=" + video.video_id;
+                videoCard.target = "_blank";
+                videoCard.classList.add("video-card");
+                videoCard.innerHTML = `
+                    <div class="video-thumb-wrapper">
+                        <img src="https://img.youtube.com/vi/${video.video_id}/mqdefault.jpg" 
+                            alt="${video.title}" class="video-thumb">
+                        <div class="video-play-btn">▶</div>
+                    </div>
+                    <div class="video-title">${video.title}</div>
+                `;
+                videoContainer.appendChild(videoCard);
             });
             block.appendChild(videoContainer);
         }
