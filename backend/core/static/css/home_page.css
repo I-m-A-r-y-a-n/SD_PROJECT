@@ -47,6 +47,7 @@ html, body {
     transform: translateX(calc(-1 * var(--sidebar-width)));
     transition: transform var(--transition);
     box-shadow: var(--shadow-lg);
+    overflow: hidden;
 }
 
 .sidebar.open {
@@ -120,6 +121,7 @@ html, body {
     color: white;
     border-radius: 12px;
     justify-content: center;
+    flex-shrink: 0;
 }
 
 .sidebar-item.logout:hover {
@@ -568,13 +570,14 @@ html, body {
 /* ── HISTORY LIST IN SIDEBAR ── */
 .history-list {
     flex: 1;
-    overflow-y: auto;
-    padding: 0 0.5rem;
+    overflow-y: scroll;
+    padding: 0 0.5rem 1rem;
     display: flex;
     flex-direction: column;
     gap: 0.2rem;
     scrollbar-width: none;
     min-height: 0;
+    max-height: calc(100vh - 300px);
 }
 
 .history-list::-webkit-scrollbar { display: none; }
@@ -726,4 +729,41 @@ html, body {
     .video-container {
         grid-template-columns: 1fr;
     }
+}
+
+.feedback-container {
+    display: flex;
+    justify-content: center;
+    gap: 0.8rem;
+    margin-top: 0.6rem;
+}
+
+.feedback-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 64px;
+    height: 32px;
+    background: rgba(101,73,243,0.1);
+    border: 1.5px solid #6549f3;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all var(--transition);
+    padding: 0;
+}
+
+.feedback-btn:hover {
+    background: #6549f3;
+    transform: scale(1.08);
+}
+
+.feedback-btn svg {
+    width: 16px;
+    height: 16px;
+    fill: #6549f3;
+    transition: fill var(--transition);
+}
+
+.feedback-btn:hover svg {
+    fill: white;
 }

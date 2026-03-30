@@ -15,8 +15,6 @@ SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-q&0%nty=d*8t&7y^*l56%
 
 DEBUG = True
 
-print("ENV FILE PATH:", BASE_DIR / ".env")
-print("GROQ FROM ENV:", os.environ.get("GROQ_API_KEY"))
 
 ALLOWED_HOSTS = ['*']
 
@@ -81,8 +79,6 @@ DATABASES = {
         default='postgresql://postgres:Zxcvbnm@890@localhost:5432/smartsearchdb'
     )
 }
-
-print("DB_HOST FROM ENV:", os.environ.get("DB_HOST"))
 
 AUTH_PASSWORD_VALIDATORS = [
     {'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator'},

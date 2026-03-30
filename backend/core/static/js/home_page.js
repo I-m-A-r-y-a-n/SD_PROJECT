@@ -190,14 +190,7 @@
 
             const videoContainer = document.createElement("div");
             videoContainer.classList.add("video-container");
-            // data.videos.forEach(video => {
-            //     const iframe = document.createElement("iframe");
-            //     iframe.src = "https://www.youtube.com/embed/" + video.video_id + "?origin=https://sdproject-production.up.railway.app";
-            //     iframe.setAttribute("allow", "accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share");
-            //     iframe.setAttribute("allowfullscreen", "true");
-            //     iframe.setAttribute("frameborder", "0");
-            //     videoContainer.appendChild(iframe);
-            // });
+
             data.videos.forEach(video => {
                 const videoCard = document.createElement("a");
                 videoCard.href = "https://www.youtube.com/watch?v=" + video.video_id;
@@ -226,6 +219,25 @@
         aiReply.classList.add("ai-message");
         aiReply.innerHTML = renderMarkdown(data.answer);
         block.appendChild(aiReply);
+
+        // FEEDBACK BUTTONS
+       const feedbackDiv = document.createElement("div");
+        feedbackDiv.classList.add("feedback-container");
+
+        const thumbsUp = document.createElement("button");
+        thumbsUp.classList.add("feedback-btn", "up");
+        thumbsUp.innerHTML = `<svg viewBox="0 0 24 24"><path d="M1 21h4V9H1v12zm22-11c0-1.1-.9-2-2-2h-6.31l.95-4.57.03-.32c0-.41-.17-.79-.44-1.06L14.17 1 7.59 7.59C7.22 7.95 7 8.45 7 9v10c0 1.1.9 2 2 2h9c.83 0 1.54-.5 1.84-1.22l3.02-7.05c.09-.23.14-.47.14-.73v-2z"/></svg>`;
+
+        const thumbsDown = document.createElement("button");
+        thumbsDown.classList.add("feedback-btn", "down");
+        thumbsDown.innerHTML = `<svg viewBox="0 0 24 24"><path d="M15 3H6c-.83 0-1.54.5-1.84 1.22l-3.02 7.05c-.09.23-.14.47-.14.73v2c0 1.1.9 2 2 2h6.31l-.95 4.57-.03.32c0 .41.17.79.44 1.06L10.83 23l6.59-6.59c.36-.36.58-.86.58-1.41V5c0-1.1-.9-2-2-2zm4 0v12h4V3h-4z"/></svg>`;
+
+        thumbsUp.onclick = () => sendFeedback(data.query_id, 1, feedbackDiv);
+        thumbsDown.onclick = () => sendFeedback(data.query_id, -1, feedbackDiv);
+
+        feedbackDiv.appendChild(thumbsUp);
+        feedbackDiv.appendChild(thumbsDown);
+        block.appendChild(feedbackDiv);
 
         // LINKS
         if (data.links && data.links.length > 0) {
@@ -341,4 +353,18 @@
         resultsArea.appendChild(timeDiv);
 
         resultsArea.scrollTop = 0;
+    }
+
+    function sendFeedback(queryId, rating, container) {
+        fetch("/api/feedback/", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ query_id: queryId, rating: rating })
+        })
+        .then(res => res.json())
+        .then(() => {
+            container.innerHTML = rating === 1 
+                ? "<span style='color:#10b981;font-size:0.85rem'>✓ Thanks for the feedback!</span>"
+                : "<span style='color:#6b7280;font-size:0.85rem'>✓ Thanks for the feedback!</span>";
+        });
     }

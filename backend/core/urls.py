@@ -12,4 +12,5 @@ urlpatterns = [
     path("login/", login_page, name="login"),
     path("signup/", signup_page, name="signup"),
     path("home/", home_page, name="home"),
+    path("api/feedback/", views.feedback_api, name="feedback_api"),
 ]
