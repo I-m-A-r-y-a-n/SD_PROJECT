@@ -56,6 +56,9 @@
         item.addEventListener("click", function () {
             if (action === "logout") {
                 fetch("/api/logout/").then(() => { window.location.href = "/login/"; });
+            } else if (action === "bookmarks") {
+                loadBookmarks();
+                closeSidebar();
             } else {
                 alert(action.charAt(0).toUpperCase() + action.slice(1) + " — Coming Soon!");
             }
@@ -252,11 +255,25 @@
                 const card = document.createElement("div");
                 card.classList.add("link-card");
 
+                const cardTop = document.createElement("div");
+                cardTop.style.cssText = "display:flex;justify-content:space-between;align-items:start";
+
                 const title = document.createElement("a");
                 title.href = link.url;
                 title.target = "_blank";
                 title.classList.add("link-title");
                 title.innerText = link.title;
+
+                const bookmarkBtn = document.createElement("button");
+                bookmarkBtn.classList.add("bookmark-btn");
+                bookmarkBtn.innerHTML = `<svg viewBox="0 0 24 24" width="16" height="16"><path d="M17 3H7c-1.1 0-2 .9-2 2v16l7-3 7 3V5c0-1.1-.9-2-2-2z"/></svg>`;
+                bookmarkBtn.onclick = (e) => {
+                    e.preventDefault();
+                    toggleBookmark(link, bookmarkBtn);
+                };
+
+                cardTop.appendChild(title);
+                cardTop.appendChild(bookmarkBtn);
 
                 const snippet = document.createElement("p");
                 snippet.classList.add("link-snippet");
@@ -266,7 +283,7 @@
                 url.classList.add("link-url");
                 url.innerText = link.url;
 
-                card.appendChild(title);
+                card.appendChild(cardTop);
                 card.appendChild(snippet);
                 card.appendChild(url);
                 linksContainer.appendChild(card);
@@ -368,3 +385,71 @@
                 : "<span style='color:#6b7280;font-size:0.85rem'>✓ Thanks for the feedback!</span>";
         });
     }
+
+    function toggleBookmark(link, btn) {
+    fetch("/api/bookmark/", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ url: link.url, title: link.title, snippet: link.snippet })
+    })
+    .then(res => res.json())
+    .then(data => {
+        if(data.status === "saved") {
+            btn.classList.add("bookmarked");
+        } else {
+            btn.classList.remove("bookmarked");
+        }
+    });
+}
+
+function loadBookmarks() {
+    fetch("/api/bookmarks/")
+    .then(res => res.json())
+    .then(data => {
+        resultsArea.innerHTML = "";
+        switchToBottomMode();
+
+        if(data.bookmarks.length === 0) {
+            resultsArea.innerHTML = "<p style='text-align:center;color:#888;padding:2rem'>No bookmarks yet.</p>";
+            return;
+        }
+
+        const block = document.createElement("div");
+        block.classList.add("result-block");
+
+        const label = document.createElement("div");
+        label.classList.add("section-label");
+        label.innerText = "🔖 Your Bookmarks";
+        block.appendChild(label);
+
+        const linksContainer = document.createElement("div");
+        linksContainer.classList.add("links-container");
+
+        data.bookmarks.forEach(link => {
+            const card = document.createElement("div");
+            card.classList.add("link-card");
+
+            const title = document.createElement("a");
+            title.href = link.url;
+            title.target = "_blank";
+            title.classList.add("link-title");
+            title.innerText = link.title;
+
+            const snippet = document.createElement("p");
+            snippet.classList.add("link-snippet");
+            snippet.innerText = link.snippet;
+
+            const url = document.createElement("span");
+            url.classList.add("link-url");
+            url.innerText = link.url;
+
+            card.appendChild(title);
+            card.appendChild(snippet);
+            card.appendChild(url);
+            linksContainer.appendChild(card);
+        });
+
+        block.appendChild(linksContainer);
+        resultsArea.appendChild(block);
+    });
+}

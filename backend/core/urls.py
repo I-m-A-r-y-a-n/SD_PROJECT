@@ -13,4 +13,6 @@ urlpatterns = [
     path("signup/", signup_page, name="signup"),
     path("home/", home_page, name="home"),
     path("api/feedback/", views.feedback_api, name="feedback_api"),
+    path("api/bookmark/", views.bookmark_api, name="bookmark_api"),
+    path("api/bookmarks/", views.get_bookmarks_api, name="get_bookmarks_api"),
 ]

@@ -16,6 +16,7 @@ from groq import Groq
 import requests
 from serpapi import GoogleSearch
 from .models import SearchQuery, Source, Content, Topic, Category, Feedback
+from .models import SearchQuery, Source, Content, Topic, Category, Feedback, Bookmark
 
 def login_page(request):
     return render(request, "core/login_page.html")
@@ -217,3 +218,38 @@ def feedback_api(request):
             return JsonResponse({"status": "success"})
         except SearchQuery.DoesNotExist:
             return JsonResponse({"error": "Not found"}, status=404)
+
+@csrf_exempt
+def bookmark_api(request):
+    if request.method == "POST":
+        data = json.loads(request.body)
+        url = data.get("url")
+        title = data.get("title")
+        snippet = data.get("snippet", "")
+
+        source_obj, _ = Source.objects.get_or_create(source_name="Bookmark")
+        content_obj, _ = Content.objects.get_or_create(
+            url=url,
+            defaults={"title": title, "snippet": snippet, "source": source_obj}
+        )
+        bookmark, created = Bookmark.objects.get_or_create(
+            user=request.user,
+            content=content_obj
+        )
+        if not created:
+            bookmark.delete()
+            return JsonResponse({"status": "removed"})
+        return JsonResponse({"status": "saved"})
+
+@csrf_exempt  
+def get_bookmarks_api(request):
+    if request.method == "GET":
+        bookmarks = Bookmark.objects.filter(user=request.user).select_related("content").order_by("-created_at")
+        data = []
+        for b in bookmarks:
+            data.append({
+                "title": b.content.title,
+                "url": b.content.url,
+                "snippet": b.content.snippet
+            })
+        return JsonResponse({"bookmarks": data})
