@@ -1,77 +1,114 @@
 {% load static %}
-<!-- <script src="{% static 'js/login_page.js' %}" defer></script> -->
 
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <!-- <meta name="csrf-token" content="{{ csrf_token }}"> -->
-
-    <title>Document</title>
+    <title>Sign Up | MyAI</title>
     <link rel="stylesheet" href="{% static 'css/sign_up.css' %}">
 </head>
 <body>
     <div class="outer">
-        <div class="logo">
-            <!-- <img src="" alt=""> -->
-            <div class="web_name"></div>
-        </div>
         <div class="inner">
             <div class="texts">
-                <div class="text1">Create an account now</div>
-                <div class="text2">Please enter your details</div>
+                <div class="text1">Create an account</div>
+                <div class="text2">Start your learning journey with MyAI</div>
             </div>
             <div class="inputs">
-                <input type="email" name="email" class="email" placeholder="Email adress">
+                <input type="email" name="email" class="email" placeholder="Email address">
                 <input type="text" name="username" class="username" placeholder="Username">
                 <input type="password" name="password" class="password" placeholder="Password">
             </div>
             <div class="button">
-                <button type="submit" class="signup">Sign Up</button>
+                <button type="submit" class="signup" id="signupBtn">
+                    <span id="btnText">Sign Up</span>
+                    <span id="btnLoader" style="display: none;">⏳</span>
+                </button>
             </div>
-            <div class="text3">Already have an account?   <a href="/login/" class="signin">Sign In</a></div>
+            <div class="text3">Already have an account? <a href="/login/" class="signin">Sign In</a></div>
         </div>
     </div>
 
-       
-
     <script>
-                document.addEventListener("DOMContentLoaded", function () {
+        document.addEventListener("DOMContentLoaded", function () {
 
-                function getCookie(name) {
-                    let cookieValue = null;
-                    if (document.cookie && document.cookie !== "") {
-                        const cookies = document.cookie.split(";");
-                        for (let i = 0; i < cookies.length; i++) {
-                            const cookie = cookies[i].trim();
-                            if (cookie.startsWith(name + "=")) {
-                                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                                break;
-                            }
+            // Toast notification function
+            function showToast(message, type = "success") {
+                const toast = document.createElement("div");
+                toast.className = `toast toast-${type}`;
+                
+                const icon = type === "success" ? "✓" : type === "error" ? "✗" : "ℹ";
+                toast.innerHTML = `
+                    <div class="toast-icon">${icon}</div>
+                    <div class="toast-message">${message}</div>
+                    <button class="toast-close">×</button>
+                `;
+                
+                document.body.appendChild(toast);
+                
+                const closeBtn = toast.querySelector(".toast-close");
+                closeBtn.onclick = () => {
+                    toast.classList.add("fade-out");
+                    setTimeout(() => toast.remove(), 300);
+                };
+                
+                // Auto remove after 3 seconds
+                setTimeout(() => {
+                    if (toast.parentElement) {
+                        toast.classList.add("fade-out");
+                        setTimeout(() => toast.remove(), 300);
+                    }
+                }, 3000);
+            }
+
+            function getCookie(name) {
+                let cookieValue = null;
+                if (document.cookie && document.cookie !== "") {
+                    const cookies = document.cookie.split(";");
+                    for (let i = 0; i < cookies.length; i++) {
+                        const cookie = cookies[i].trim();
+                        if (cookie.startsWith(name + "=")) {
+                            cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                            break;
                         }
                     }
-                    return cookieValue;
+                }
+                return cookieValue;
+            }
+
+            const csrftoken = getCookie("csrftoken");
+            const signupBtn = document.getElementById("signupBtn");
+            const btnText = document.getElementById("btnText");
+            const btnLoader = document.getElementById("btnLoader");
+
+            function validPassword(pw) {
+                const regex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{8,}$/;
+                return regex.test(pw);
+            }
+
+            signupBtn.addEventListener("click", async function () {
+                const username = document.querySelector(".username").value.trim();
+                const email = document.querySelector(".email").value.trim();
+                const password = document.querySelector(".password").value;
+
+                if (!username || !email || !password) {
+                    showToast("Please fill in all fields", "error");
+                    return;
                 }
 
-                const csrftoken = getCookie("csrftoken");
-
-                function validPassword(pw) {
-                    const regex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{8,}$/;
-                    return regex.test(pw);
+                if (!validPassword(password)) {
+                    showToast("Password must contain uppercase, lowercase, number, special character & min 8 chars", "error");
+                    return;
                 }
 
-                document.querySelector(".signup").addEventListener("click", async function () {
+                // Show loading state
+                btnText.style.display = "none";
+                btnLoader.style.display = "inline-block";
+                signupBtn.disabled = true;
+                signupBtn.style.opacity = "0.7";
 
-                    const username = document.querySelector(".username").value;
-                    const email = document.querySelector(".email").value;
-                    const password = document.querySelector(".password").value;
-
-                    if (!validPassword(password)) {
-                        alert("Password must contain uppercase, lowercase, number, symbol and be at least 8 characters");
-                        return;
-                    }
-
+                try {
                     const res = await fetch("/api/register/", {
                         method: "POST",
                         headers: {
@@ -85,17 +122,36 @@
                     const result = await res.json();
 
                     if (res.ok) {
-                        alert("Signup successful!");
-                        // window.location.href = "/login/";
-                        window.location.href = "/home/";
+                        showToast("Signup successful! Welcome to MyAI 🎉", "success");
+                        setTimeout(() => {
+                            window.location.href = "/home/";
+                        }, 1000);
                     } else {
-                        alert(result.error || JSON.stringify(result));
+                        showToast(result.error || "Signup failed. Please try again.", "error");
+                        btnText.style.display = "inline";
+                        btnLoader.style.display = "none";
+                        signupBtn.disabled = false;
+                        signupBtn.style.opacity = "1";
+                    }
+                } catch (error) {
+                    showToast("Network error. Please check your connection.", "error");
+                    btnText.style.display = "inline";
+                    btnLoader.style.display = "none";
+                    signupBtn.disabled = false;
+                    signupBtn.style.opacity = "1";
+                }
+            });
+
+            // Allow Enter key to submit
+            const inputs = document.querySelectorAll(".email, .username, .password");
+            inputs.forEach(input => {
+                input.addEventListener("keypress", function(e) {
+                    if (e.key === "Enter") {
+                        signupBtn.click();
                     }
                 });
-
             });
-        </script>
-
-
+        });
+    </script>
 </body>
 </html>

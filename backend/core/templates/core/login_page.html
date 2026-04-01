@@ -5,33 +5,138 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <!-- <meta name="csrf-token" content="{{ csrf_token }}">     -->
-
-    <title>Document</title>
-    
+    <title>Login | MyAI</title>
     <link rel="stylesheet" href="{% static 'css/login_page.css' %}">
-    <script src="{% static 'js/login_page.js' %}" defer></script>
 </head>
 <body>
     <div class="outer">
-        <div class="logo">
-            <!-- <img src="" alt=""> -->
-            <div class="web_name"></div>
-        </div>
         <div class="inner">
             <div class="texts">
                 <div class="text1">Welcome back</div>
-                <div class="text2">Please enter your details</div>
+                <div class="text2">Please enter your details to continue</div>
             </div>
             <div class="inputs">
-                <input type="email" name="email" class="email" placeholder="Email adress">
+                <input type="email" name="email" class="email" placeholder="Email address">
                 <input type="password" name="password" class="password" placeholder="Password">
             </div>
             <div class="button">
-                <button class="signin">Sign in</button>
+                <button class="signin" id="loginBtn">
+                    <span id="btnText">Sign In</span>
+                    <span id="btnLoader" style="display: none;">⏳</span>
+                </button>
             </div>
-            <div class="text3">Don't have an account?   <a href="/signup/" class="signup">Sign Up</a></div>
+            <div class="text3">Don't have an account? <a href="/signup/" class="signup">Sign Up</a></div>
         </div>
     </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+
+            // Toast notification function
+            function showToast(message, type = "success") {
+                const toast = document.createElement("div");
+                toast.className = `toast toast-${type}`;
+                
+                const icon = type === "success" ? "✓" : type === "error" ? "✗" : "ℹ";
+                toast.innerHTML = `
+                    <div class="toast-icon">${icon}</div>
+                    <div class="toast-message">${message}</div>
+                    <button class="toast-close">×</button>
+                `;
+                
+                document.body.appendChild(toast);
+                
+                const closeBtn = toast.querySelector(".toast-close");
+                closeBtn.onclick = () => {
+                    toast.classList.add("fade-out");
+                    setTimeout(() => toast.remove(), 300);
+                };
+                
+                // Auto remove after 3 seconds
+                setTimeout(() => {
+                    if (toast.parentElement) {
+                        toast.classList.add("fade-out");
+                        setTimeout(() => toast.remove(), 300);
+                    }
+                }, 3000);
+            }
+
+            function getCookie(name) {
+                let cookieValue = null;
+                if (document.cookie && document.cookie !== "") {
+                    const cookies = document.cookie.split(";");
+                    for (let i = 0; i < cookies.length; i++) {
+                        const cookie = cookies[i].trim();
+                        if (cookie.startsWith(name + "=")) {
+                            cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                            break;
+                        }
+                    }
+                }
+                return cookieValue;
+            }
+
+            const csrftoken = getCookie("csrftoken");
+            const loginBtn = document.getElementById("loginBtn");
+            const btnText = document.getElementById("btnText");
+            const btnLoader = document.getElementById("btnLoader");
+
+            loginBtn.addEventListener("click", async function () {
+                const email = document.querySelector(".email").value.trim();
+                const password = document.querySelector(".password").value;
+
+                if (!email || !password) {
+                    showToast("Please enter both email and password", "error");
+                    return;
+                }
+
+                // Show loading state
+                btnText.style.display = "none";
+                btnLoader.style.display = "inline-block";
+                loginBtn.disabled = true;
+
+                try {
+                    const res = await fetch("/api/login/", {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json",
+                            "X-CSRFToken": csrftoken
+                        },
+                        credentials: "same-origin",
+                        body: JSON.stringify({ email, password })
+                    });
+
+                    const result = await res.json();
+
+                    if (res.ok) {
+                        showToast("Login successful! Welcome back! 🎉", "success");
+                        setTimeout(() => {
+                            window.location.href = "/home/";
+                        }, 1000);
+                    } else {
+                        showToast(result.error || "Invalid credentials. Please try again.", "error");
+                        btnText.style.display = "inline";
+                        btnLoader.style.display = "none";
+                        loginBtn.disabled = false;
+                    }
+                } catch (error) {
+                    showToast("Network error. Please check your connection.", "error");
+                    btnText.style.display = "inline";
+                    btnLoader.style.display = "none";
+                    loginBtn.disabled = false;
+                }
+            });
+
+            // Allow Enter key to submit
+            const inputs = document.querySelectorAll(".email, .password");
+            inputs.forEach(input => {
+                input.addEventListener("keypress", function(e) {
+                    if (e.key === "Enter") {
+                        loginBtn.click();
+                    }
+                });
+            });
+        });
+    </script>
 </body>
 </html>
