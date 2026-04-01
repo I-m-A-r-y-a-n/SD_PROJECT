@@ -1,0 +1,272 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Bookmarks | MyAI</title>
+    <link rel="stylesheet" href="{% static 'css/home_page.css' %}">
+    <style>
+        .page-container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 2rem;
+            overflow-y: auto;
+            height: calc(100vh - 80px);
+            scrollbar-width: none;
+        }
+        .page-container::-webkit-scrollbar {
+            display: none;
+        }
+        .page-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        .page-title {
+            font-size: 2rem;
+            font-weight: 700;
+            background: var(--gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .empty-state {
+            text-align: center;
+            padding: 4rem;
+            color: var(--text-muted);
+        }
+        .bookmark-card {
+            background: var(--surface);
+            border-radius: 16px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            border: 1px solid var(--border);
+            transition: all var(--transition);
+        }
+        .bookmark-card:hover {
+            border-color: var(--primary);
+            transform: translateX(4px);
+            box-shadow: var(--shadow);
+        }
+        .bookmark-title {
+            font-size: 1.05rem;
+            font-weight: 600;
+            color: var(--primary);
+            text-decoration: none;
+            display: block;
+            margin-bottom: 0.5rem;
+        }
+        .bookmark-title:hover {
+            text-decoration: underline;
+        }
+        .bookmark-snippet {
+            font-size: 0.88rem;
+            color: var(--text-muted);
+            margin: 0.5rem 0;
+            line-height: 1.5;
+        }
+        .bookmark-url {
+            font-size: 0.78rem;
+            color: #10b981;
+            word-break: break-all;
+            margin-top: 0.3rem;
+        }
+        .remove-bookmark {
+            margin-top: 1rem;
+            background: none;
+            border: 1px solid #ef4444;
+            color: #ef4444;
+            padding: 0.4rem 1rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.8rem;
+            transition: all var(--transition);
+        }
+        .remove-bookmark:hover {
+            background: #ef4444;
+            color: white;
+        }
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        .home-btn {
+            background: var(--gradient);
+            color: white;
+            border: none;
+            padding: 0.5rem 1.2rem;
+            border-radius: 40px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            font-weight: 500;
+            transition: all var(--transition);
+        }
+        .home-btn:hover {
+            opacity: 0.9;
+            transform: translateY(-2px);
+        }
+    </style>
+</head>
+<body>
+    <div class="app" id="app">
+        <!-- SIDEBAR -->
+        <div class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <div class="sidebar-logo">MyAI</div>
+                <button class="sidebar-close" id="sidebarClose">✕</button>
+            </div>
+
+            <div class="new-chat-btn" id="newChatBtn" onclick="window.location.href='/home/'">
+                <span>✏️</span> New Chat
+            </div>
+
+            <div class="sidebar-section-label">Menu</div>
+            <div class="sidebar-item" data-action="profile" onclick="window.location.href='/profile/'">
+                <span class="sidebar-icon">👤</span> Profile
+            </div>
+            <div class="sidebar-item" data-action="bookmarks" onclick="window.location.href='/bookmarks/'">
+                <span class="sidebar-icon">🔖</span> Bookmarks
+            </div>
+            <div class="sidebar-item" data-action="feedback" onclick="window.location.href='/feedback/'">
+                <span class="sidebar-icon">💬</span> Feedback
+            </div>
+
+            <div class="sidebar-section-label">Recent</div>
+            <div class="history-list" id="historyList">
+                <div class="history-loading">Loading...</div>
+            </div>
+
+            <div class="sidebar-item logout" data-action="logout" onclick="fetch('/api/logout/').then(() => { window.location.href = '/login/'; })">
+                <span class="sidebar-icon">🚪</span> Logout
+            </div>
+        </div>
+
+        <div class="overlay" id="overlay"></div>
+
+        <div class="main-content">
+            <div class="header">
+                <div class="header-left">
+                    <button class="menu-btn" id="menuBtn">☰</button>
+                    <div class="logo">MyAI</div>
+                </div>
+                <div class="header-right">
+                    <button class="home-btn" onclick="window.location.href='/home/'">🏠 Home</button>
+                    <div class="username-pill">👤 {{ username }}</div>
+                </div>
+            </div>
+            
+            <div class="page-container">
+                <div class="page-header">
+                    <h1 class="page-title">🔖 My Bookmarks</h1>
+                </div>
+                
+                <div id="bookmarksList">
+                    <div class="loading">Loading bookmarks...</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Sidebar functionality
+        const menuBtn = document.getElementById("menuBtn");
+        const sidebar = document.getElementById("sidebar");
+        const sidebarClose = document.getElementById("sidebarClose");
+        const overlay = document.getElementById("overlay");
+        const mainContent = document.querySelector(".main-content");
+
+        function openSidebar() {
+            sidebar.classList.add("open");
+            overlay.classList.add("show");
+            if (window.innerWidth > 600) mainContent.classList.add("shifted");
+        }
+
+        function closeSidebar() {
+            sidebar.classList.remove("open");
+            overlay.classList.remove("show");
+            mainContent.classList.remove("shifted");
+        }
+
+        menuBtn.onclick = openSidebar;
+        sidebarClose.onclick = closeSidebar;
+        overlay.onclick = closeSidebar;
+
+        // Load history for sidebar
+        function loadHistorySidebar() {
+            const historyList = document.getElementById("historyList");
+            fetch("/api/history/")
+                .then(res => res.json())
+                .then(data => {
+                    historyList.innerHTML = "";
+                    if (data.history.length === 0) {
+                        historyList.innerHTML = '<div class="history-loading">No history yet.</div>';
+                        return;
+                    }
+                    const groups = {};
+                    data.history.forEach(item => {
+                        const date = item.created_at.split(",")[0];
+                        if (!groups[date]) groups[date] = [];
+                        groups[date].push(item);
+                    });
+                    Object.entries(groups).forEach(([date, items]) => {
+                        const dateLabel = document.createElement("div");
+                        dateLabel.classList.add("history-date");
+                        dateLabel.innerText = date;
+                        historyList.appendChild(dateLabel);
+                        items.forEach(item => {
+                            const entry = document.createElement("div");
+                            entry.classList.add("history-entry");
+                            entry.innerText = item.query;
+                            entry.title = item.query;
+                            entry.addEventListener("click", () => {
+                                window.location.href = "/home/";
+                            });
+                            historyList.appendChild(entry);
+                        });
+                    });
+                });
+        }
+
+        loadHistorySidebar();
+
+        function loadBookmarks() {
+            fetch("/api/bookmarks/")
+                .then(res => res.json())
+                .then(data => {
+                    const container = document.getElementById("bookmarksList");
+                    if (data.bookmarks.length === 0) {
+                        container.innerHTML = '<div class="empty-state">📭 No bookmarks yet. Start saving links from your search results!</div>';
+                        return;
+                    }
+                    
+                    container.innerHTML = "";
+                    data.bookmarks.forEach(bookmark => {
+                        const card = document.createElement("div");
+                        card.classList.add("bookmark-card");
+                        card.innerHTML = `
+                            <a href="${bookmark.url}" target="_blank" class="bookmark-title">${bookmark.title}</a>
+                            <div class="bookmark-snippet">${bookmark.snippet || "No description available"}</div>
+                            <div class="bookmark-url">${bookmark.url}</div>
+                            <button class="remove-bookmark" data-url="${bookmark.url}">Remove Bookmark</button>
+                        `;
+                        container.appendChild(card);
+                    });
+                    
+                    document.querySelectorAll(".remove-bookmark").forEach(btn => {
+                        btn.addEventListener("click", function() {
+                            const url = this.dataset.url;
+                            fetch("/api/bookmark/", {
+                                method: "POST",
+                                headers: { "Content-Type": "application/json" },
+                                body: JSON.stringify({ url: url, title: "", snippet: "" })
+                            })
+                            .then(() => loadBookmarks());
+                        });
+                    });
+                });
+        }
+        
+        loadBookmarks();
+    </script>
+</body>
+</html>

@@ -1,0 +1,473 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Feedback | MyAI</title>
+    <link rel="stylesheet" href="{% static 'css/home_page.css' %}">
+    <style>
+        .page-container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 2rem;
+            overflow-y: auto;
+            height: calc(100vh - 80px);
+            scrollbar-width: none;
+        }
+        .page-container::-webkit-scrollbar {
+            display: none;
+        }
+        .page-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        .page-title {
+            font-size: 2rem;
+            font-weight: 700;
+            background: var(--gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .empty-state {
+            text-align: center;
+            padding: 4rem;
+            color: var(--text-muted);
+        }
+        .feedback-card {
+            background: var(--surface);
+            border-radius: 16px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            border: 1px solid var(--border);
+            transition: all var(--transition);
+        }
+        .feedback-card:hover {
+            border-color: var(--primary);
+            box-shadow: var(--shadow);
+        }
+        .feedback-query {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--text);
+            margin-bottom: 0.5rem;
+        }
+        .feedback-rating {
+            display: flex;
+            gap: 0.2rem;
+            margin: 0.5rem 0;
+        }
+        .feedback-rating span {
+            font-size: 1.2rem;
+            color: #fbbf24;
+        }
+        .feedback-comment {
+            font-size: 0.88rem;
+            color: var(--text-muted);
+            margin: 0.5rem 0;
+            padding: 0.5rem;
+            background: var(--bg);
+            border-radius: 8px;
+            line-height: 1.5;
+        }
+        .feedback-date {
+            font-size: 0.72rem;
+            color: var(--text-muted);
+            margin-top: 0.5rem;
+        }
+        .feedback-actions {
+            margin-top: 1rem;
+            display: flex;
+            gap: 0.8rem;
+        }
+        .edit-feedback-btn {
+            background: none;
+            border: 1px solid var(--primary);
+            color: var(--primary);
+            padding: 0.4rem 1rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.8rem;
+            transition: all var(--transition);
+        }
+        .edit-feedback-btn:hover {
+            background: var(--primary);
+            color: white;
+        }
+        .feedback-form {
+            background: var(--bg);
+            border-radius: 20px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+        .feedback-form h3 {
+            margin-bottom: 1.2rem;
+            font-size: 1.3rem;
+            color: var(--text);
+        }
+        .search-select {
+            width: 100%;
+            max-width: 500px;
+            padding: 0.9rem 1rem;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            margin: 0 auto 1.2rem;
+            font-family: inherit;
+            display: block;
+            font-size: 0.9rem;
+            background: var(--surface);
+        }
+        .star-rating {
+            display: flex;
+            gap: 0.6rem;
+            margin: 1rem auto;
+            cursor: pointer;
+            justify-content: center;
+        }
+        .star-rating span {
+            font-size: 2rem;
+            color: #d1d5db;
+            transition: color 0.2s;
+        }
+        .star-rating span.active {
+            color: #fbbf24;
+        }
+        .feedback-comment-input {
+            width: 100%;
+            max-width: 600px;
+            padding: 0.9rem;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            font-family: inherit;
+            resize: vertical;
+            margin: 0.5rem auto;
+            display: block;
+            font-size: 0.9rem;
+            background: var(--surface);
+        }
+        .submit-feedback {
+            background: var(--gradient);
+            color: white;
+            border: none;
+            padding: 0.9rem 2.5rem;
+            border-radius: 40px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all var(--transition);
+            display: inline-block;
+            margin-top: 0.8rem;
+            font-size: 0.95rem;
+        }
+        .submit-feedback:hover {
+            opacity: 0.9;
+            transform: translateY(-2px);
+        }
+        .section-title {
+            text-align: center;
+            margin: 2rem 0 1.5rem;
+            font-size: 1.4rem;
+            color: var(--text);
+            font-weight: 600;
+        }
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        .home-btn {
+            background: var(--gradient);
+            color: white;
+            border: none;
+            padding: 0.5rem 1.2rem;
+            border-radius: 40px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            font-weight: 500;
+            transition: all var(--transition);
+        }
+        .home-btn:hover {
+            opacity: 0.9;
+            transform: translateY(-2px);
+        }
+        .loading {
+            text-align: center;
+            padding: 2rem;
+            color: var(--text-muted);
+        }
+    </style>
+</head>
+<body>
+    <div class="app" id="app">
+        <!-- SIDEBAR -->
+        <div class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <div class="sidebar-logo">MyAI</div>
+                <button class="sidebar-close" id="sidebarClose">✕</button>
+            </div>
+
+            <div class="new-chat-btn" id="newChatBtn" onclick="window.location.href='/home/'">
+                <span>✏️</span> New Chat
+            </div>
+
+            <div class="sidebar-section-label">Menu</div>
+            <div class="sidebar-item" data-action="profile" onclick="window.location.href='/profile/'">
+                <span class="sidebar-icon">👤</span> Profile
+            </div>
+            <div class="sidebar-item" data-action="bookmarks" onclick="window.location.href='/bookmarks/'">
+                <span class="sidebar-icon">🔖</span> Bookmarks
+            </div>
+            <div class="sidebar-item" data-action="feedback" onclick="window.location.href='/feedback/'">
+                <span class="sidebar-icon">💬</span> Feedback
+            </div>
+
+            <div class="sidebar-section-label">Recent</div>
+            <div class="history-list" id="historyList">
+                <div class="history-loading">Loading...</div>
+            </div>
+
+            <div class="sidebar-item logout" data-action="logout" onclick="fetch('/api/logout/').then(() => { window.location.href = '/login/'; })">
+                <span class="sidebar-icon">🚪</span> Logout
+            </div>
+        </div>
+
+        <div class="overlay" id="overlay"></div>
+
+        <div class="main-content">
+            <div class="header">
+                <div class="header-left">
+                    <button class="menu-btn" id="menuBtn">☰</button>
+                    <div class="logo">MyAI</div>
+                </div>
+                <div class="header-right">
+                    <button class="home-btn" onclick="window.location.href='/home/'">🏠 Home</button>
+                    <div class="username-pill">👤 {{ username }}</div>
+                </div>
+            </div>
+            
+            <div class="page-container">
+                <div class="page-header">
+                    <h1 class="page-title">💬 My Feedback</h1>
+                </div>
+                
+                <div class="feedback-form">
+                    <h3>📝 Add Feedback for a Search</h3>
+                    <select id="searchSelect" class="search-select">
+                        <option value="">Select a search to give feedback...</option>
+                    </select>
+                    <div class="star-rating" id="starRating">
+                        <span data-rating="1">★</span>
+                        <span data-rating="2">★</span>
+                        <span data-rating="3">★</span>
+                        <span data-rating="4">★</span>
+                        <span data-rating="5">★</span>
+                    </div>
+                    <textarea id="feedbackCommentInput" class="feedback-comment-input" rows="3" placeholder="Tell us what you think about this search result... (optional)"></textarea>
+                    <button id="submitFeedbackBtn" class="submit-feedback">Submit Feedback</button>
+                </div>
+                
+                <h3 class="section-title">📋 Your Previous Feedback</h3>
+                <div id="feedbackList">
+                    <div class="loading">Loading feedback...</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Sidebar functionality
+        const menuBtn = document.getElementById("menuBtn");
+        const sidebar = document.getElementById("sidebar");
+        const sidebarClose = document.getElementById("sidebarClose");
+        const overlay = document.getElementById("overlay");
+        const mainContent = document.querySelector(".main-content");
+
+        function openSidebar() {
+            sidebar.classList.add("open");
+            overlay.classList.add("show");
+            if (window.innerWidth > 600) mainContent.classList.add("shifted");
+        }
+
+        function closeSidebar() {
+            sidebar.classList.remove("open");
+            overlay.classList.remove("show");
+            mainContent.classList.remove("shifted");
+        }
+
+        menuBtn.onclick = openSidebar;
+        sidebarClose.onclick = closeSidebar;
+        overlay.onclick = closeSidebar;
+
+        function loadHistorySidebar() {
+            const historyList = document.getElementById("historyList");
+            fetch("/api/history/")
+                .then(res => res.json())
+                .then(data => {
+                    historyList.innerHTML = "";
+                    if (data.history.length === 0) {
+                        historyList.innerHTML = '<div class="history-loading">No history yet.</div>';
+                        return;
+                    }
+                    const groups = {};
+                    data.history.forEach(item => {
+                        const date = item.created_at.split(",")[0];
+                        if (!groups[date]) groups[date] = [];
+                        groups[date].push(item);
+                    });
+                    Object.entries(groups).forEach(([date, items]) => {
+                        const dateLabel = document.createElement("div");
+                        dateLabel.classList.add("history-date");
+                        dateLabel.innerText = date;
+                        historyList.appendChild(dateLabel);
+                        items.forEach(item => {
+                            const entry = document.createElement("div");
+                            entry.classList.add("history-entry");
+                            entry.innerText = item.query;
+                            entry.title = item.query;
+                            entry.addEventListener("click", () => {
+                                window.location.href = "/home/";
+                            });
+                            historyList.appendChild(entry);
+                        });
+                    });
+                });
+        }
+
+        loadHistorySidebar();
+
+        let selectedRating = 0;
+        let selectedSearchId = null;
+        
+        function loadSearches() {
+            fetch("/api/search/history/")
+                .then(res => res.json())
+                .then(data => {
+                    const select = document.getElementById("searchSelect");
+                    select.innerHTML = '<option value="">Select a search to give feedback...</option>';
+                    data.searches.forEach(search => {
+                        const option = document.createElement("option");
+                        option.value = search.id;
+                        option.textContent = `${search.query} (${search.created_at})`;
+                        select.appendChild(option);
+                    });
+                });
+        }
+        
+        function loadFeedbackList() {
+            fetch("/api/feedback/all/")
+                .then(res => res.json())
+                .then(data => {
+                    const container = document.getElementById("feedbackList");
+                    if (data.feedback.length === 0) {
+                        container.innerHTML = '<div class="empty-state">📝 No feedback yet. Select a search above to give feedback!</div>';
+                        return;
+                    }
+                    
+                    container.innerHTML = "";
+                    data.feedback.forEach(item => {
+                        const div = document.createElement("div");
+                        div.classList.add("feedback-card");
+                        const stars = "★".repeat(item.rating) + "☆".repeat(5 - item.rating);
+                        div.innerHTML = `
+                            <div class="feedback-query">🔍 ${item.query}</div>
+                            <div class="feedback-rating"><span>${stars}</span></div>
+                            <div class="feedback-comment">💬 ${item.comment || "No comment provided"}</div>
+                            <div class="feedback-date">📅 ${item.created_at}</div>
+                            <div class="feedback-actions">
+                                <button class="edit-feedback-btn" data-id="${item.id}" data-rating="${item.rating}" data-comment="${item.comment || ''}">✏️ Edit</button>
+                            </div>
+                        `;
+                        container.appendChild(div);
+                    });
+                    
+                    document.querySelectorAll(".edit-feedback-btn").forEach(btn => {
+                        btn.addEventListener("click", function() {
+                            const id = this.dataset.id;
+                            const rating = parseInt(this.dataset.rating);
+                            const comment = this.dataset.comment;
+                            
+                            selectedSearchId = id;
+                            selectedRating = rating;
+                            document.getElementById("feedbackCommentInput").value = comment;
+                            
+                            document.querySelectorAll("#starRating span").forEach(star => {
+                                if (parseInt(star.dataset.rating) <= rating) {
+                                    star.classList.add("active");
+                                } else {
+                                    star.classList.remove("active");
+                                }
+                            });
+                            
+                            const submitBtn = document.getElementById("submitFeedbackBtn");
+                            submitBtn.textContent = "Update Feedback";
+                            submitBtn.style.background = "linear-gradient(135deg, #10b981, #059669)";
+                            
+                            document.querySelector(".feedback-form").scrollIntoView({ behavior: "smooth" });
+                        });
+                    });
+                });
+        }
+        
+        document.querySelectorAll("#starRating span").forEach(star => {
+            star.addEventListener("click", function() {
+                selectedRating = parseInt(this.dataset.rating);
+                document.querySelectorAll("#starRating span").forEach(s => {
+                    if (parseInt(s.dataset.rating) <= selectedRating) {
+                        s.classList.add("active");
+                    } else {
+                        s.classList.remove("active");
+                    }
+                });
+            });
+        });
+        
+        document.getElementById("submitFeedbackBtn").addEventListener("click", () => {
+            const searchId = document.getElementById("searchSelect").value;
+            const comment = document.getElementById("feedbackCommentInput").value;
+            
+            if (!searchId && !selectedSearchId) {
+                alert("Please select a search to give feedback");
+                return;
+            }
+            
+            if (selectedRating === 0) {
+                alert("Please select a rating");
+                return;
+            }
+            
+            const feedbackId = selectedSearchId;
+            const isEdit = !!feedbackId;
+            
+            fetch("/api/feedback/submit/", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ 
+                    search_id: searchId || feedbackId,
+                    rating: selectedRating, 
+                    comment: comment,
+                    is_edit: isEdit
+                })
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.status === "success") {
+                    alert(isEdit ? "Feedback updated!" : "Feedback submitted! Thank you!");
+                    selectedRating = 0;
+                    selectedSearchId = null;
+                    document.getElementById("searchSelect").value = "";
+                    document.getElementById("feedbackCommentInput").value = "";
+                    document.querySelectorAll("#starRating span").forEach(s => s.classList.remove("active"));
+                    const submitBtn = document.getElementById("submitFeedbackBtn");
+                    submitBtn.textContent = "Submit Feedback";
+                    submitBtn.style.background = "";
+                    loadSearches();
+                    loadFeedbackList();
+                }
+            });
+        });
+        
+        loadSearches();
+        loadFeedbackList();
+    </script>
+</body>
+</html>

@@ -253,3 +253,155 @@ def get_bookmarks_api(request):
                 "snippet": b.content.snippet
             })
         return JsonResponse({"bookmarks": data})
+
+# Add these imports if not already present
+from django.db.models import Count
+from datetime import datetime
+
+@login_required
+def profile_api(request):
+    if request.method == "GET":
+        user = request.user
+        total_searches = SearchQuery.objects.filter(user=user).count()
+        total_bookmarks = Bookmark.objects.filter(user=user).count()
+        total_feedback = Feedback.objects.filter(user=user).count()
+        last_search = SearchQuery.objects.filter(user=user).order_by("-created_at").first()
+        last_active = last_search.created_at.strftime("%d %b %Y, %I:%M %p") if last_search else "Never"
+        
+        return JsonResponse({
+            "username": user.username,
+            "email": user.email,
+            "join_date": user.date_joined.strftime("%d %b %Y"),
+            "total_searches": total_searches,
+            "total_bookmarks": total_bookmarks,
+            "total_feedback": total_feedback,
+            "last_active": last_active
+        })
+
+@csrf_exempt
+@login_required
+def profile_update_api(request):
+    if request.method == "POST":
+        data = json.loads(request.body)
+        user = request.user
+        
+        new_username = data.get("username")
+        new_email = data.get("email")
+        
+        if new_username and User.objects.exclude(id=user.id).filter(username=new_username).exists():
+            return JsonResponse({"error": "Username already taken"}, status=400)
+        
+        if new_email and User.objects.exclude(id=user.id).filter(email=new_email).exists():
+            return JsonResponse({"error": "Email already registered"}, status=400)
+        
+        if new_username:
+            user.username = new_username
+        if new_email:
+            user.email = new_email
+        
+        user.save()
+        return JsonResponse({"status": "success"})
+
+@login_required
+def search_history_api(request):
+    if request.method == "GET":
+        searches = SearchQuery.objects.filter(user=request.user).order_by("-created_at")[:50]
+        data = []
+        for s in searches:
+            data.append({
+                "id": s.id,
+                "query": s.query_text,
+                "created_at": s.created_at.strftime("%d %b %Y, %I:%M %p")
+            })
+        return JsonResponse({"searches": data})
+
+@login_required
+def feedback_all_api(request):
+    if request.method == "GET":
+        feedbacks = Feedback.objects.filter(user=request.user).select_related('content').order_by("-created_at")
+        data = []
+        for fb in feedbacks:
+            # Try to find the search query associated with this feedback
+            search = SearchQuery.objects.filter(
+                user=request.user,
+                query_text=fb.content.title
+            ).first()
+            
+            data.append({
+                "id": fb.id,
+                "query": search.query_text if search else fb.content.title,
+                "rating": fb.rating,
+                "comment": fb.comment,
+                "created_at": fb.created_at.strftime("%d %b %Y, %I:%M %p")
+            })
+        return JsonResponse({"feedback": data})
+
+@csrf_exempt
+@login_required
+def feedback_submit_api(request):
+    if request.method == "POST":
+        data = json.loads(request.body)
+        search_id = data.get("search_id")
+        rating = data.get("rating")
+        comment = data.get("comment", "")
+        is_edit = data.get("is_edit", False)
+        
+        try:
+            search = SearchQuery.objects.get(id=search_id, user=request.user)
+            
+            # Create or update feedback
+            feedback, created = Feedback.objects.get_or_create(
+                user=request.user,
+                content__url__contains=str(search_id),
+                defaults={
+                    "content": Content.objects.get_or_create(
+                        url=f"/search/{search_id}",
+                        defaults={"title": search.query_text, "snippet": ""}
+                    )[0],
+                    "rating": rating,
+                    "comment": comment
+                }
+            )
+            
+            if not created:
+                feedback.rating = rating
+                feedback.comment = comment
+                feedback.save()
+            
+            return JsonResponse({"status": "success"})
+        except SearchQuery.DoesNotExist:
+            return JsonResponse({"error": "Search not found"}, status=404)
+
+@login_required
+def bookmarks_page(request):
+    return render(request, "core/bookmarks.html", {"username": request.user.username})
+
+@login_required
+def feedback_page(request):
+    return render(request, "core/feedback.html", {"username": request.user.username})
+
+@login_required
+def profile_page(request):
+    return render(request, "core/profile.html", {"username": request.user.username})
+
+@csrf_exempt
+@login_required
+def recommendations_api(request):
+    if request.method == "GET":
+        # Get user's search history
+        searches = SearchQuery.objects.filter(user=request.user).order_by("-created_at")
+        
+        # Count frequency of queries
+        query_counts = {}
+        for search in searches:
+            query = search.query_text
+            query_counts[query] = query_counts.get(query, 0) + 1
+        
+        # Get top 6 most searched queries
+        top_queries = sorted(query_counts.items(), key=lambda x: x[1], reverse=True)[:6]
+        
+        recommendations = []
+        for query, count in top_queries:
+            recommendations.append({"query": query, "count": count})
+        
+        return JsonResponse({"recommendations": recommendations})

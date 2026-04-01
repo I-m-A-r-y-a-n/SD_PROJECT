@@ -27,15 +27,11 @@
         <div class="sidebar-item" data-action="profile">
             <span class="sidebar-icon">👤</span> Profile
         </div>
-        <div class="sidebar-item" data-action="themes">
-            <span class="sidebar-icon">🎨</span> Themes
-        </div>
-        <div class="sidebar-item" data-action="settings">
-            <span class="sidebar-icon">⚙️</span> Settings
-        </div>
-
         <div class="sidebar-item" data-action="bookmarks">
             <span class="sidebar-icon">🔖</span> Bookmarks
+        </div>
+        <div class="sidebar-item" data-action="feedback">
+            <span class="sidebar-icon">💬</span> Feedback
         </div>
 
         <div class="sidebar-section-label">Recent</div>
@@ -65,7 +61,7 @@
         <!-- RESULTS AREA -->
         <div class="results-area" id="resultsArea"></div>
 
-        <!-- SEARCH WRAPPER — hero lives inside here now -->
+        <!-- SEARCH WRAPPER -->
         <div class="search-wrapper" id="searchWrapper">
 
             <!-- HERO inside search wrapper -->
@@ -83,18 +79,22 @@
             </div>
 
             <div class="suggestions" id="suggestions">
-                <div class="chip">Python tutorial</div>
-                <div class="chip">SQL queries</div>
-                <div class="chip">DSA problems</div>
-                <div class="chip">React interview</div>
-                <div class="chip">System design</div>
-                <div class="chip">AI tools</div>
+                <div class="suggestion-loading">✨ Loading recommendations...</div>
             </div>
 
         </div>
 
     </div>
 </div>
+
+<style>
+.suggestion-loading {
+    text-align: center;
+    color: var(--text-muted);
+    padding: 0.5rem;
+    font-size: 0.85rem;
+}
+</style>
 
 </body>
 </html>

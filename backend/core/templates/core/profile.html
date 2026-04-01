@@ -1,0 +1,394 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Profile | MyAI</title>
+    <link rel="stylesheet" href="{% static 'css/home_page.css' %}">
+    <style>
+        .page-container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 2rem;
+            overflow-y: auto;
+            height: calc(100vh - 80px);
+            scrollbar-width: none;
+        }
+        .page-container::-webkit-scrollbar {
+            display: none;
+        }
+        .page-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        .page-title {
+            font-size: 2rem;
+            font-weight: 700;
+            background: var(--gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .profile-card {
+            background: var(--surface);
+            border-radius: 24px;
+            padding: 2.5rem;
+            box-shadow: var(--shadow);
+            width: 100%;
+        }
+        .avatar {
+            width: 120px;
+            height: 120px;
+            background: var(--gradient);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3.5rem;
+            margin: 0 auto 1.8rem;
+            color: white;
+            font-weight: 600;
+        }
+        .profile-field {
+            display: flex;
+            padding: 1rem 0;
+            border-bottom: 1px solid var(--border);
+        }
+        .profile-label {
+            width: 110px;
+            font-weight: 600;
+            color: var(--text-muted);
+            font-size: 0.95rem;
+        }
+        .profile-value {
+            flex: 1;
+            color: var(--text);
+            font-weight: 500;
+            font-size: 0.95rem;
+        }
+        .profile-stats {
+            background: var(--bg);
+            border-radius: 20px;
+            padding: 1.8rem;
+            margin: 1.8rem 0;
+        }
+        .stat-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.7rem 0;
+        }
+        .stat-label {
+            font-weight: 500;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+        .stat-value {
+            font-weight: 700;
+            color: var(--primary);
+            font-size: 1.2rem;
+        }
+        .edit-btn {
+            background: var(--gradient);
+            color: white;
+            border: none;
+            padding: 0.9rem 1.8rem;
+            border-radius: 40px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all var(--transition);
+            width: 100%;
+            margin-top: 1rem;
+            font-size: 0.95rem;
+        }
+        .edit-btn:hover {
+            opacity: 0.9;
+            transform: translateY(-2px);
+        }
+        .edit-form {
+            margin-top: 1.8rem;
+            padding-top: 1.8rem;
+            border-top: 1px solid var(--border);
+        }
+        .edit-form input {
+            width: 100%;
+            padding: 0.9rem;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            margin-bottom: 1rem;
+            font-family: inherit;
+            font-size: 0.9rem;
+            background: var(--surface);
+        }
+        .edit-form input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 2px rgba(101,73,243,0.1);
+        }
+        .save-btn {
+            background: #10b981;
+            color: white;
+            border: none;
+            padding: 0.8rem;
+            border-radius: 40px;
+            font-weight: 600;
+            cursor: pointer;
+            width: 48%;
+            font-size: 0.9rem;
+            transition: all var(--transition);
+        }
+        .cancel-btn {
+            background: #ef4444;
+            color: white;
+            border: none;
+            padding: 0.8rem;
+            border-radius: 40px;
+            font-weight: 600;
+            cursor: pointer;
+            width: 48%;
+            font-size: 0.9rem;
+            transition: all var(--transition);
+        }
+        .save-btn:hover, .cancel-btn:hover {
+            opacity: 0.9;
+            transform: translateY(-2px);
+        }
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        .home-btn {
+            background: var(--gradient);
+            color: white;
+            border: none;
+            padding: 0.5rem 1.2rem;
+            border-radius: 40px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            font-weight: 500;
+            transition: all var(--transition);
+        }
+        .home-btn:hover {
+            opacity: 0.9;
+            transform: translateY(-2px);
+        }
+        .loading {
+            text-align: center;
+            padding: 2rem;
+            color: var(--text-muted);
+        }
+    </style>
+</head>
+<body>
+    <div class="app" id="app">
+        <!-- SIDEBAR -->
+        <div class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <div class="sidebar-logo">MyAI</div>
+                <button class="sidebar-close" id="sidebarClose">✕</button>
+            </div>
+
+            <div class="new-chat-btn" id="newChatBtn" onclick="window.location.href='/home/'">
+                <span>✏️</span> New Chat
+            </div>
+
+            <div class="sidebar-section-label">Menu</div>
+            <div class="sidebar-item" data-action="profile" onclick="window.location.href='/profile/'">
+                <span class="sidebar-icon">👤</span> Profile
+            </div>
+            <div class="sidebar-item" data-action="bookmarks" onclick="window.location.href='/bookmarks/'">
+                <span class="sidebar-icon">🔖</span> Bookmarks
+            </div>
+            <div class="sidebar-item" data-action="feedback" onclick="window.location.href='/feedback/'">
+                <span class="sidebar-icon">💬</span> Feedback
+            </div>
+
+            <div class="sidebar-section-label">Recent</div>
+            <div class="history-list" id="historyList">
+                <div class="history-loading">Loading...</div>
+            </div>
+
+            <div class="sidebar-item logout" data-action="logout" onclick="fetch('/api/logout/').then(() => { window.location.href = '/login/'; })">
+                <span class="sidebar-icon">🚪</span> Logout
+            </div>
+        </div>
+
+        <div class="overlay" id="overlay"></div>
+
+        <div class="main-content">
+            <div class="header">
+                <div class="header-left">
+                    <button class="menu-btn" id="menuBtn">☰</button>
+                    <div class="logo">MyAI</div>
+                </div>
+                <div class="header-right">
+                    <button class="home-btn" onclick="window.location.href='/home/'">🏠 Home</button>
+                    <div class="username-pill">👤 {{ username }}</div>
+                </div>
+            </div>
+            
+            <div class="page-container">
+                <div class="page-header">
+                    <h1 class="page-title">👤 My Profile</h1>
+                </div>
+                
+                <div class="profile-card" id="profileContent">
+                    <div class="loading">Loading profile...</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Sidebar functionality
+        const menuBtn = document.getElementById("menuBtn");
+        const sidebar = document.getElementById("sidebar");
+        const sidebarClose = document.getElementById("sidebarClose");
+        const overlay = document.getElementById("overlay");
+        const mainContent = document.querySelector(".main-content");
+
+        function openSidebar() {
+            sidebar.classList.add("open");
+            overlay.classList.add("show");
+            if (window.innerWidth > 600) mainContent.classList.add("shifted");
+        }
+
+        function closeSidebar() {
+            sidebar.classList.remove("open");
+            overlay.classList.remove("show");
+            mainContent.classList.remove("shifted");
+        }
+
+        menuBtn.onclick = openSidebar;
+        sidebarClose.onclick = closeSidebar;
+        overlay.onclick = closeSidebar;
+
+        function loadHistorySidebar() {
+            const historyList = document.getElementById("historyList");
+            fetch("/api/history/")
+                .then(res => res.json())
+                .then(data => {
+                    historyList.innerHTML = "";
+                    if (data.history.length === 0) {
+                        historyList.innerHTML = '<div class="history-loading">No history yet.</div>';
+                        return;
+                    }
+                    const groups = {};
+                    data.history.forEach(item => {
+                        const date = item.created_at.split(",")[0];
+                        if (!groups[date]) groups[date] = [];
+                        groups[date].push(item);
+                    });
+                    Object.entries(groups).forEach(([date, items]) => {
+                        const dateLabel = document.createElement("div");
+                        dateLabel.classList.add("history-date");
+                        dateLabel.innerText = date;
+                        historyList.appendChild(dateLabel);
+                        items.forEach(item => {
+                            const entry = document.createElement("div");
+                            entry.classList.add("history-entry");
+                            entry.innerText = item.query;
+                            entry.title = item.query;
+                            entry.addEventListener("click", () => {
+                                window.location.href = "/home/";
+                            });
+                            historyList.appendChild(entry);
+                        });
+                    });
+                });
+        }
+
+        loadHistorySidebar();
+
+        let isEditing = false;
+        
+        function loadProfile() {
+            fetch("/api/profile/")
+                .then(res => res.json())
+                .then(data => {
+                    const container = document.getElementById("profileContent");
+                    container.innerHTML = `
+                        <div>
+                            <div class="avatar">${data.username.charAt(0).toUpperCase()}</div>
+                        </div>
+                        <div class="profile-field">
+                            <div class="profile-label">Username</div>
+                            <div class="profile-value" id="displayUsername">${data.username}</div>
+                        </div>
+                        <div class="profile-field">
+                            <div class="profile-label">Email</div>
+                            <div class="profile-value">${data.email}</div>
+                        </div>
+                        <div class="profile-field">
+                            <div class="profile-label">Joined</div>
+                            <div class="profile-value">${data.join_date}</div>
+                        </div>
+                        <div class="profile-stats">
+                            <div class="stat-item">
+                                <span class="stat-label">Total Searches</span>
+                                <span class="stat-value">${data.total_searches}</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-label">Total Bookmarks</span>
+                                <span class="stat-value">${data.total_bookmarks}</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-label">Total Feedback</span>
+                                <span class="stat-value">${data.total_feedback}</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-label">Last Active</span>
+                                <span class="stat-value">${data.last_active}</span>
+                            </div>
+                        </div>
+                        <button class="edit-btn" onclick="toggleEdit()">✏️ Edit Profile</button>
+                        <div id="editForm" style="display: none;" class="edit-form">
+                            <input type="text" id="newUsername" placeholder="New Username" value="${data.username}">
+                            <input type="email" id="newEmail" placeholder="New Email" value="${data.email}">
+                            <div style="display: flex; gap: 1rem;">
+                                <button class="save-btn" onclick="saveProfile()">Save Changes</button>
+                                <button class="cancel-btn" onclick="toggleEdit()">Cancel</button>
+                            </div>
+                        </div>
+                    `;
+                });
+        }
+        
+        function toggleEdit() {
+            isEditing = !isEditing;
+            const editForm = document.getElementById("editForm");
+            const editBtn = document.querySelector(".edit-btn");
+            if (isEditing) {
+                editForm.style.display = "block";
+                editBtn.style.display = "none";
+            } else {
+                editForm.style.display = "none";
+                editBtn.style.display = "block";
+            }
+        }
+        
+        function saveProfile() {
+            const newUsername = document.getElementById("newUsername").value;
+            const newEmail = document.getElementById("newEmail").value;
+            
+            fetch("/api/profile/update/", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ username: newUsername, email: newEmail })
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.status === "success") {
+                    alert("Profile updated successfully!");
+                    toggleEdit();
+                    loadProfile();
+                } else {
+                    alert(data.error || "Update failed");
+                }
+            });
+        }
+        
+        loadProfile();
+    </script>
+</body>
+</html>
