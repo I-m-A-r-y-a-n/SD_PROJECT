@@ -68,9 +68,22 @@ def login_user(request):
 @login_required(login_url="/login/")
 def home_page(request):
     return render(request, "core/home_page.html", {"username": request.user.username})
-
 @csrf_exempt
 def search_api(request):
+    # DEBUG - Check if key is loading
+    print("=== DEBUG API KEY ===")
+    groq_key = settings.GROQ_API_KEY
+    if groq_key:
+        print(f"Key loaded: {groq_key[:15]}... (length: {len(groq_key)})")
+        if groq_key.startswith("gsk_"):
+            print("✅ Key format looks correct (starts with gsk_)")
+        else:
+            print("❌ Key format is wrong! Should start with 'gsk_'")
+    else:
+        print("❌ NO API KEY FOUND!")
+    print("====================")
+    
+    # ... rest of your code
     if request.method == "POST":
         data = json.loads(request.body)
         query = data.get("query")
